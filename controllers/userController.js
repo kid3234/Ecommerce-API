@@ -1,14 +1,14 @@
+import expressAsyncHandler from "express-async-handler";
 import User from "../model/User.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
+// import asyncHandler from "express-async-handler";
 
-export const registerUser = async (req, res) => {
+export const registerUser = expressAsyncHandler(async (req, res) => {
   const { fullName, email, password } = req.body;
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-    res.json({
-      msg: "user already exists",
-    });
+   throw(new Error("user already exists"))
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -24,32 +24,24 @@ export const registerUser = async (req, res) => {
     message: "user registerd successfully",
     data: user,
   });
-};
+});
 
 // login controller
 
-export const loginUserCtrl = async (req, res) => {
+export const loginUserCtrl = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user =await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-  
   if (user) {
-    if (await bcrypt.compare(password,user.password)) {
+    if (await bcrypt.compare(password, user.password)) {
       return res.status(200).json({
         status: "success",
         message: "user loged in successfuly",
         user: user,
       });
     }
-    return res.status(400).json({
-      status: "error",
-      message: "The password is not correct",
-    });
+    throw new Error("Incorect password");
   }
-  return res.status(400).json({
-    status: "error",
-    message: "User not found with this email",
-  });
-};
-
+  throw new Error("User not found with this email");
+});
