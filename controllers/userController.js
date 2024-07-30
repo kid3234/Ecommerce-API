@@ -1,6 +1,9 @@
 import expressAsyncHandler from "express-async-handler";
 import User from "../model/User.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
+import { generateToken } from "../utils/genToken.js";
+import { getToken } from "../utils/getToken.js";
+import { verifyToken } from "../utils/verifyTolen.js";
 // import asyncHandler from "express-async-handler";
 
 export const registerUser = expressAsyncHandler(async (req, res) => {
@@ -39,9 +42,24 @@ export const loginUserCtrl = expressAsyncHandler(async (req, res) => {
         status: "success",
         message: "user loged in successfuly",
         user: user,
+        token: generateToken(user.id)
       });
     }
     throw new Error("Incorect password");
   }
   throw new Error("User not found with this email");
 });
+
+// user profile controller
+
+export const getUserProfileCtrl =async (req,res)=>{
+const token = getToken(req)
+
+const verified = verifyToken(token);
+console.log(verified);
+res.json({
+    msg:'this is your profile'
+})
+console.log("this is token",token);
+   
+}

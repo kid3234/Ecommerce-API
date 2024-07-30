@@ -14,8 +14,9 @@ const app = express();
 
 // to pass incoming data 
 app.use(express.json())
-app.use("/", userRoutes);
+app.use("/api/V1/users", userRoutes);
+
 app.use(notFound)
 app.use(globalErrorHandler)
-
-export default app; 
+ 
+export default app;  
