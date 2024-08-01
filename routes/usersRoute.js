@@ -8,4 +8,5 @@ userRoutes.post('/register',registerUser)
 userRoutes.post('/login',loginUserCtrl);
 userRoutes.get('/profile',isLoggedIn,getUserProfileCtrl)
 
+
 export default userRoutes 

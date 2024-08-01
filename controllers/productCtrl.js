@@ -124,3 +124,78 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
     products,
   });
 });
+
+export const getProductCtrl = expressAsyncHandler(async(req,res)=>{
+  const {id} = req.params
+
+  const product  = await Product.findById(id);
+if(product){
+  return res.status(200).json({
+    message:"product is fetched successfuly",
+    product
+  })
+}else{
+  throw new Error("product not found")
+}
+
+
+})
+
+export const updateProductCtrl = expressAsyncHandler(async (req,res)=>{
+  const {
+    name,
+    description,
+    brand,
+    category,
+    sizes,
+    colors,
+    user,
+    price,
+    totalQty,
+  } = req.body;
+
+  const {id} = req.params
+  
+  const product  = await Product.findByIdAndUpdate(id,{
+    name,
+    description,
+    brand,
+    category,
+    sizes,
+    colors,
+    user,
+    price,
+    totalQty,
+  },
+  {
+    new:true 
+  }
+)
+
+if(!product){
+  throw new Error("Ptoduct not updated")
+}
+
+res.json({
+  message:"product updated successfuly",
+  product
+})
+
+
+
+  
+})
+
+export const deleteProductCtrl = expressAsyncHandler(async (req,res) => {
+  const {id} = req.params
+
+  const product = await Product.findByIdAndDelete(id);
+
+if(!product){
+  throw new Error("can't delete product")
+}
+res.json({
+  message:"Product delated successfuly",
+  product
+})
+})
