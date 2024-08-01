@@ -43,8 +43,7 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
   console.log(req.query);
   let productQuery = Product.find();
 
-
-//  filtter by brand
+  //  filtter by brand
   if (req?.query?.name) {
     productQuery = productQuery.find({
       name: { $regex: req?.query?.name, $options: "i" },
@@ -79,18 +78,49 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
     });
   }
 
-  // fillter product by price range 
+  // fillter product by price range
 
-  if(req?.query?.price){
+  if (req?.query?.price) {
     const priceRange = req.query.price.split("-");
     productQuery = productQuery.find({
-      price: {$gte: priceRange[0] , $lte:priceRange[1]},
-    })
+      price: { $gte: priceRange[0], $lte: priceRange[1] },
+    });
+  }
+
+  // Pagination
+
+  const page = parseInt(req?.query?.page) ? parseInt(req?.query?.page) : 1;
+  const limit = parseInt(req?.query?.limit) ? parseInt(req?.query?.limit) : 10;
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const total = await Product.countDocuments();
+
+  productQuery = productQuery.skip(startIndex).limit(limit);
+
+  const pagination = {};
+  if (endIndex < total) {
+    pagination.netx = {
+      page: page + 1,
+      limit,
+    };
+  }
+
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit,
+    };
   }
 
   const products = await productQuery;
   res.json({
     status: "success",
+    total,
+    result: products.length,
+    pagination,
+    message: "Product fetched successfuly",
     products,
   });
 });
