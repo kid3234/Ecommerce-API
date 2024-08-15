@@ -12,6 +12,7 @@ import categoryRoutes from "../routes/categoryRoute.js";
 import brandRoutes from "../routes/brandRoutes.js";
 import colorRoutes from "../routes/colorRoutes.js";
 import reviewRoutes from "../routes/reviewRoutes.js";
+import orderRoutes from "../routes/orderRoutes.js";
 
 
 
@@ -26,6 +27,7 @@ app.use("/api/V1/category",categoryRoutes)
 app.use("/api/V1/brands",brandRoutes)
 app.use("/api/V1/colors",colorRoutes)
 app.use("/api/V1/reviews",reviewRoutes)
+app.use("/api/V1/orders",orderRoutes)
 
 app.use(notFound)
 app.use(globalErrorHandler)
