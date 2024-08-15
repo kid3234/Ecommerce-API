@@ -1,3 +1,5 @@
+import Brand from "../model/Brand.js";
+import Category from "../model/category.js";
 import Product from "../model/Product.js";
 import expressAsyncHandler from "express-async-handler";
 
@@ -9,15 +11,32 @@ export const createProductCtrl = expressAsyncHandler(async (req, res) => {
     category,
     sizes,
     colors,
-    user,
     price,
     totalQty,
   } = req.body;
 
-  const productexist = await Product.findOne({ name });
+  const productexist = await Product.findOne({ name ,brand,category });
   if (productexist) {
     throw new Error("product alredy exists");
   }
+
+  const categoryFound = await Category.findOne({ name: category });
+  console.log("category", categoryFound);
+
+  if (!categoryFound) {
+    return res.status(404).json({
+      message: "category not found please create category first!",
+    });
+  }
+console.log("brand",brand.toLowerCase());
+
+  const brandFound = await Brand.findOne({ name: brand.toLowerCase() });
+  if (!brandFound) {
+    return res.status(404).json({
+      message: "brand not found please create brand first!",
+    });
+  }
+
   const product = await Product.create({
     name,
     description,
@@ -29,6 +48,12 @@ export const createProductCtrl = expressAsyncHandler(async (req, res) => {
     price,
     totalQty,
   });
+
+  categoryFound.product.push(product._id);
+  await categoryFound.save();
+
+  brandFound.products.push(product._id);
+  await brandFound.save();
   //   push the product in the category
 
   // send responce
@@ -114,7 +139,7 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
     };
   }
 
-  const products = await productQuery;
+  const products = await productQuery.populate('reviews');
   res.json({
     status: "success",
     total,
@@ -125,23 +150,21 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
   });
 });
 
-export const getProductCtrl = expressAsyncHandler(async(req,res)=>{
-  const {id} = req.params
+export const getProductCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
 
-  const product  = await Product.findById(id);
-if(product){
-  return res.status(200).json({
-    message:"product is fetched successfuly",
-    product
-  })
-}else{
-  throw new Error("product not found")
-}
+  const product = await Product.findById(id).populate('reviews');
+  if (product) {
+    return res.status(200).json({
+      message: "product is fetched successfuly",
+      product,
+    });
+  } else {
+    throw new Error("product not found");
+  }
+});
 
-
-})
-
-export const updateProductCtrl = expressAsyncHandler(async (req,res)=>{
+export const updateProductCtrl = expressAsyncHandler(async (req, res) => {
   const {
     name,
     description,
@@ -154,48 +177,46 @@ export const updateProductCtrl = expressAsyncHandler(async (req,res)=>{
     totalQty,
   } = req.body;
 
-  const {id} = req.params
-  
-  const product  = await Product.findByIdAndUpdate(id,{
-    name,
-    description,
-    brand,
-    category,
-    sizes,
-    colors,
-    user,
-    price,
-    totalQty,
-  },
-  {
-    new:true 
+  const { id } = req.params;
+
+  const product = await Product.findByIdAndUpdate(
+    id,
+    {
+      name,
+      description,
+      brand,
+      category,
+      sizes,
+      colors,
+      user,
+      price,
+      totalQty,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!product) {
+    throw new Error("Ptoduct not updated");
   }
-)
 
-if(!product){
-  throw new Error("Ptoduct not updated")
-}
+  res.json({
+    message: "product updated successfuly",
+    product,
+  });
+});
 
-res.json({
-  message:"product updated successfuly",
-  product
-})
-
-
-
-  
-})
-
-export const deleteProductCtrl = expressAsyncHandler(async (req,res) => {
-  const {id} = req.params
+export const deleteProductCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
 
   const product = await Product.findByIdAndDelete(id);
 
-if(!product){
-  throw new Error("can't delete product")
-}
-res.json({
-  message:"Product delated successfuly",
-  product
-})
-})
+  if (!product) {
+    throw new Error("can't delete product");
+  }
+  res.json({
+    message: "Product delated successfuly",
+    product,
+  });
+});
