@@ -11,7 +11,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-   throw(new Error("user already exists"))
+    throw new Error("user already exists");
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -42,7 +42,7 @@ export const loginUserCtrl = expressAsyncHandler(async (req, res) => {
         status: "success",
         message: "user loged in successfuly",
         user: user,
-        token: generateToken(user.id)
+        token: generateToken(user.id),
       });
     }
     throw new Error("Incorect password");
@@ -52,14 +52,42 @@ export const loginUserCtrl = expressAsyncHandler(async (req, res) => {
 
 // user profile controller
 
-export const getUserProfileCtrl =async (req,res)=>{
-const token = getToken(req)
+export const getUserProfileCtrl = async (req, res) => {
+  const token = getToken(req);
 
-const verified = verifyToken(token);
-console.log(verified);
-res.json({
-    msg:'this is your profile'
-})
-console.log("this is token",token);
-   
-}
+  const verified = verifyToken(token);
+  console.log(verified);
+  res.json({
+    msg: "this is your profile",
+  });
+  console.log("this is token", token);
+};
+
+export const updateShipingAddress = expressAsyncHandler(async (req, res) => {
+  const { province, postalCode, city, address, lastName, firstName } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    req.userAuthId,
+    {
+      shippingAddress: {
+        province,
+        postalCode,
+        city,
+        address,
+        lastName,
+        firstName,
+      },
+      hasShippingAdderes: true,
+    },
+    {
+      new: true,
+    }
+  );
+  if (!user) {
+    throw new Error("Can't add shiping address");
+  }
+  res.json({
+    message: "shiping Address added successfuly",
+    user,
+  });
+});

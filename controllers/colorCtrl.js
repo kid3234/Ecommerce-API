@@ -5,7 +5,7 @@ export const createColor = expressAsyncHandler(async (req, res) => {
   const { name } = req.body;
 
   const colorexist = await Color.find({ name });
-  if (!colorexist) {
+  if (colorexist > 0) {
     throw new Error("color alredy exists");
   }
 

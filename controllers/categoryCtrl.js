@@ -4,9 +4,11 @@ import Category from "../model/category.js";
 export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
   const { name, user, image, product } = req.body;
 
-  const existCategory = await Category.find({ name });
+  const existCategory = await Category.find({ name: name });
 
-  if (existCategory) {
+  console.log("existCategory",existCategory);
+  
+  if (existCategory.length >  0) {
     throw new Error("The category is alredy exists");
   }
 
@@ -26,7 +28,6 @@ export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
     category,
   });
 });
-
 
 export const getCategoriesCtrl = expressAsyncHandler(async (req, res) => {
   const categories = await Category.find();
@@ -55,37 +56,39 @@ export const getCategoryCtrl = expressAsyncHandler(async (req, res) => {
   });
 });
 
-
 export const updateCategoryCtrl = expressAsyncHandler(async (req, res) => {
   const { name, image } = req.body;
   const { id } = req.params;
 
-  const category = await Category.findByIdAndUpdate(id, {
-    name: name.toLowerCase(),
-  },{
-    new:true
-  });
+  const category = await Category.findByIdAndUpdate(
+    id,
+    {
+      name: name.toLowerCase(),
+    },
+    {
+      new: true,
+    }
+  );
 
-  if(!category){
+  if (!category) {
     throw new Error("can not update category");
   }
   res.status(200).json({
-    message:"categrory updated successfuly",
-    category
-  })
+    message: "categrory updated successfuly",
+    category,
+  });
 });
 
-export const deleteCategoryCtrl = expressAsyncHandler(async(req,res)=>{
-  const {id} = req.params;
+export const deleteCategoryCtrl = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
 
- const category= await Category.findByIdAndDelete(id);
- if(!category){
-  throw new Error("Can't delete the category")
- }
+  const category = await Category.findByIdAndDelete(id);
+  if (!category) {
+    throw new Error("Can't delete the category");
+  }
 
- res.json({
-  status:"success",
-  message:"Category deleted successfuly"
- })
-
-})
+  res.json({
+    status: "success",
+    message: "Category deleted successfuly",
+  });
+});

@@ -16,6 +16,9 @@ export const createProductCtrl = expressAsyncHandler(async (req, res) => {
   } = req.body;
 
   const productexist = await Product.findOne({ name ,brand,category });
+
+  console.log('product exist',productexist);
+  
   if (productexist) {
     throw new Error("product alredy exists");
   }

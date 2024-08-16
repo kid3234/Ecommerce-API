@@ -5,7 +5,7 @@ export const createBrand = expressAsyncHandler(async (req, res) => {
   const { name } = req.body;
 
   const brandexist = await Brand.find({ name });
-  if (brandexist) {
+  if (brandexist.length > 0) {
     throw new Error("Brand alredy exists");
   }
 
