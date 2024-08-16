@@ -53,14 +53,13 @@ export const loginUserCtrl = expressAsyncHandler(async (req, res) => {
 // user profile controller
 
 export const getUserProfileCtrl = async (req, res) => {
-  const token = getToken(req);
+  const user = await User.findById(req.userAuthId).populate("orders");
 
-  const verified = verifyToken(token);
-  console.log(verified);
   res.json({
-    msg: "this is your profile",
+    status: true,
+    message: "user profile featched successfully",
+    user,
   });
-  console.log("this is token", token);
 };
 
 export const updateShipingAddress = expressAsyncHandler(async (req, res) => {
