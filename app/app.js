@@ -17,6 +17,7 @@ import reviewRoutes from "../routes/reviewRoutes.js";
 import orderRoutes from "../routes/orderRoutes.js";
 import Stripe from "stripe";
 import Order from "../model/Order.js";
+import couponRoutes from "../routes/couponRoutes.js";
 
 dbConnect();
 const app = express();
@@ -35,7 +36,6 @@ app.post(
 
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-   
     } catch (err) {
       response.status(400).send(`Webhook Error: ${err.message}`);
       return;
@@ -45,32 +45,30 @@ app.post(
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      console.log("session ---- ",session.metadata);
-      
-      const {orderId} = session.metadata;
+      console.log("session ---- ", session.metadata);
+
+      const { orderId } = session.metadata;
       const paymentMethod = session.payment_method_types[0];
       const paymentStatus = session.payment_status;
       const totalAmount = session.amount_total;
       const currency = session.currency;
 
-      console.log("order id",orderId);
-      
+      console.log("order id", orderId);
 
-      const order = await Order.findByIdAndUpdate( JSON.parse(orderId),{
-        paymentMethod,
-        paymentStatus,
-        totalPrice: totalAmount / 100,
-       currency
-      },
-      {
-        new:true
-      }
-    )
+      const order = await Order.findByIdAndUpdate(
+        JSON.parse(orderId),
+        {
+          paymentMethod,
+          paymentStatus,
+          totalPrice: totalAmount / 100,
+          currency,
+        },
+        {
+          new: true,
+        }
+      );
 
       console.log(order);
-      
-
-
     } else {
       return;
     }
@@ -99,6 +97,7 @@ app.use("/api/V1/brands", brandRoutes);
 app.use("/api/V1/colors", colorRoutes);
 app.use("/api/V1/reviews", reviewRoutes);
 app.use("/api/V1/orders", orderRoutes);
+app.use("/api/V1/coupons", couponRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);

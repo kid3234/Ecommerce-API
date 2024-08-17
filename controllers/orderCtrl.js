@@ -5,10 +5,23 @@ import Order from "../model/Order.js";
 import User from "../model/User.js";
 import Product from "../model/Product.js";
 import Stripe from "stripe";
+import Coupon from "../model/Coupon.js";
 
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
 export const createOrder = expressAsyncHandler(async (req, res) => {
+  const { coupon } = req?.query;
+
+  const couponFound = await Coupon.findOne({ code: coupon?.toUpperCase() });
+  if (couponFound?.isExpired) {
+    throw new Error("Coupon is expired");
+  }
+  if (!couponFound) {
+    throw new Error("Coupon not found");
+  }
+
+  const discount = couponFound?.discount / 100;
+
   const { orderItems, totalPrice, shippingAddress } = req.body;
 
   const user = await User.findById(req?.userAuthId);
@@ -25,9 +38,10 @@ export const createOrder = expressAsyncHandler(async (req, res) => {
     user: user._id,
     shippingAddress,
     orderItems,
-    totalPrice,
+    totalPrice: couponFound ? totalPrice - totalPrice * discount : totalPrice,
   });
 
+  console.log("order with coupon ",order);
   user.orders.push(order._id);
 
   await user.save();
@@ -106,24 +120,25 @@ export const getSingleOrder = expressAsyncHandler(async (req, res) => {
   });
 });
 
-export const updateOrderStatus = expressAsyncHandler(async(req,res)=>{
-  const {id} = req.params;
-  const {status} = req.body;
+export const updateOrderStatus = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
-  const updatedOrder = await Order.findByIdAndUpdate(id,{
-    status
-  },
-  {
-    new: true
+  const updatedOrder = await Order.findByIdAndUpdate(
+    id,
+    {
+      status,
+    },
+    {
+      new: true,
+    }
+  );
+  if (!updatedOrder) {
+    throw new Error("Error updating order status");
   }
-)
-if(!updatedOrder){
-  throw new Error("Error updating order status");
-}
 
-res.json({
-  message:'order status updated successfuly',
-  updatedOrder
-})
-
-})
+  res.json({
+    message: "order status updated successfuly",
+    updatedOrder,
+  });
+});
