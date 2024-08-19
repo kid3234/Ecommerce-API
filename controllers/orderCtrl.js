@@ -41,7 +41,7 @@ export const createOrder = expressAsyncHandler(async (req, res) => {
     totalPrice: couponFound ? totalPrice - totalPrice * discount : totalPrice,
   });
 
-  console.log("order with coupon ",order);
+  console.log("order with coupon ", order);
   user.orders.push(order._id);
 
   await user.save();
@@ -140,5 +140,55 @@ export const updateOrderStatus = expressAsyncHandler(async (req, res) => {
   res.json({
     message: "order status updated successfuly",
     updatedOrder,
+  });
+});
+
+export const getOrderStat = expressAsyncHandler(async (req, res) => {
+  const orderStat = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalSale: {
+          $sum: "$totalPrice",
+        },
+        minimumSale: {
+          $min: "$totalPrice",
+        },
+        maxSale: {
+          $max: "$totalPrice",
+        },
+        avgSale: {
+          $avg: "$totalPrice",
+        },
+      },
+    },
+  ]);
+
+  const date = new Date();
+  const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const salesToday = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: today,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSale: {
+          $sum: "$totalPrice",
+        },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    message: "Sum of orders",
+    orderStat,
+    salesToday,
   });
 });

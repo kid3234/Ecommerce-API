@@ -1,4 +1,7 @@
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import dotenv from "dotenv"
+
+dotenv.config()
 import cloudinaryPakege from "cloudinary";
 import multer from "multer";
 
@@ -8,7 +11,7 @@ const cloudinary = cloudinaryPakege.v2;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.envCLOUDINARY_API_KEY,
+  api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_SEKRET_KEY,
 });
 
@@ -20,12 +23,9 @@ const storage = new CloudinaryStorage({
   },
 });
 
-console.log("storage", storage);
-
 // init multer with storage engien
 const upload = multer({
   storage,
 });
 
-console.log("upload", upload);
 export default upload;

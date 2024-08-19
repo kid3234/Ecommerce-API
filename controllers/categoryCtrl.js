@@ -2,7 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import Category from "../model/category.js";
 
 export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
-  const { name, user, image, product } = req.body;
+  const { name, product } = req.body;
 
   const existCategory = await Category.find({ name: name });
 
@@ -15,7 +15,7 @@ export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
   const category = await Category.create({
     name: name.toLowerCase(),
     user: req.userAuthId,
-    // image,
+    image:req?.file?.path,
     // product,
   });
 

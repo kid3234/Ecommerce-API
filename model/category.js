@@ -15,7 +15,6 @@ const categorySchema = new Schema(
         },
         image:{
             type:String,
-            default:"https://www.freepik.com/free-psd/black-friday-super-sale-social-media-banner-template_33485097.htm#fromView=search&page=1&position=0&uuid=e8662209-beaa-4519-8f35-e5fb9e943eb2",
             required:true
         },
         product:[

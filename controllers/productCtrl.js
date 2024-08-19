@@ -1,75 +1,65 @@
+import { request } from "express";
 import Brand from "../model/Brand.js";
 import Category from "../model/category.js";
 import Product from "../model/Product.js";
 import expressAsyncHandler from "express-async-handler";
 
 export const createProductCtrl = expressAsyncHandler(async (req, res) => {
+  const convertedFiles = req?.files.map(file=> file?.path)
+  const { name, description, brand, category, sizes, colors, price, totalQty } =
+    req.body;
 
-console.log("file",req?.file);
+  const productexist = await Product.findOne({ name, brand, category });
 
+  console.log("product exist", productexist);
 
+  if (productexist) {
+    throw new Error("product alredy exists");
+  }
 
-//   const {
-//     name,
-//     description,
-//     brand,
-//     category,
-//     sizes,
-//     colors,
-//     price,
-//     totalQty,
-//   } = req.body;
+  const categoryFound = await Category.findOne({ name: category });
+  console.log("category", categoryFound);
 
-//   const productexist = await Product.findOne({ name ,brand,category });
+  if (!categoryFound) {
+    return res.status(404).json({
+      message: "category not found please create category first!",
+    });
+  }
+  console.log("brand", brand.toLowerCase());
 
-//   console.log('product exist',productexist);
-  
-//   if (productexist) {
-//     throw new Error("product alredy exists");
-//   }
+  const brandFound = await Brand.findOne({ name: brand.toLowerCase() });
+  if (!brandFound) {
+    return res.status(404).json({
+      message: "brand not found please create brand first!",
+    });
+  }
 
-//   const categoryFound = await Category.findOne({ name: category });
-//   console.log("category", categoryFound);
+  const product = await Product.create({
+    name,
+    description,
+    brand,
+    category,
+    sizes,
+    colors,
+    user: req.userAuthId,
+    price,
+    totalQty,
+    images: convertedFiles
+  });
 
-//   if (!categoryFound) {
-//     return res.status(404).json({
-//       message: "category not found please create category first!",
-//     });
-//   }
-// console.log("brand",brand.toLowerCase());
+  categoryFound.product.push(product._id);
+  await categoryFound.save();
 
-//   const brandFound = await Brand.findOne({ name: brand.toLowerCase() });
-//   if (!brandFound) {
-//     return res.status(404).json({
-//       message: "brand not found please create brand first!",
-//     });
-//   }
+  brandFound.products.push(product._id);
+  await brandFound.save();
+  //   push the product in the category
 
-//   const product = await Product.create({
-//     name,
-//     description,
-//     brand,
-//     category,
-//     sizes,
-//     colors,
-//     user: req.userAuthId,
-//     price,
-//     totalQty,
-//   });
-
-//   categoryFound.product.push(product._id);
-//   await categoryFound.save();
-
-//   brandFound.products.push(product._id);
-//   await brandFound.save();
-//   //   push the product in the category
-
-//   // send responce
-//   res.json({
-//     status: "success",
-//     message: "product created successfuly",
-//     product,
-//   });
+  // send responce
+  res.json({
+    status: "success",
+    message: "product created successfuly",
+    product,
+  });
 });
 
 export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
@@ -147,7 +137,7 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
     };
   }
 
-  const products = await productQuery.populate('reviews');
+  const products = await productQuery.populate("reviews");
   res.json({
     status: "success",
     total,
@@ -161,7 +151,7 @@ export const getAllProductsCtrl = expressAsyncHandler(async (req, res) => {
 export const getProductCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const product = await Product.findById(id).populate('reviews');
+  const product = await Product.findById(id).populate("reviews");
   if (product) {
     return res.status(200).json({
       message: "product is fetched successfuly",

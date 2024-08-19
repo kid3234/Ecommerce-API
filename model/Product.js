@@ -35,11 +35,12 @@ const ProductSchema = new Schema(
       required: true,
       ref: "User",
     },
-    image: {
-      type: String,
-      default:
-        "https://www.freepik.com/free-ai-image/beautiful-anime-kid-cartoon-scene_94944883.htm#fromView=keyword&page=1&position=9&uuid=42e262d2-0ca2-401b-8176-230e8d29bf5a&from_element=home_trends",
-    },
+    images: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
 
     reviews: [
       {
