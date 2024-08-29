@@ -7,8 +7,8 @@ import isAdmin from "../middlewares/isAdmin.js";
 const colorRoutes = express.Router();
 
 colorRoutes.post("/",isLoggedIn,isAdmin,createColor)
-colorRoutes.get("/",isLoggedIn,getAllColors)
-colorRoutes.get("/:id",isLoggedIn,getcolor)
+colorRoutes.get("/",getAllColors)
+colorRoutes.get("/:id",getcolor)
 colorRoutes.put("/:id",isLoggedIn,isAdmin,updateColor)
 colorRoutes.delete("/:id",isLoggedIn,isAdmin,deleteColor)
 

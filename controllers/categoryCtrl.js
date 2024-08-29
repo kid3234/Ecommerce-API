@@ -12,6 +12,9 @@ export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
     throw new Error("The category is alredy exists");
   }
 
+  console.log("request data from back",req);
+  
+
   const category = await Category.create({
     name: name.toLowerCase(),
     user: req.userAuthId,
