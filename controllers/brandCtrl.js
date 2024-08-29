@@ -25,7 +25,7 @@ export const createBrand = expressAsyncHandler(async (req, res) => {
 });
 
 export const getAllBrands = expressAsyncHandler(async (req, res) => {
-  const brands = await Brand.find();
+  const brands = await Brand.find().populate('products');
 
   if (!brands) {
     throw new Error("there is no registered brands");

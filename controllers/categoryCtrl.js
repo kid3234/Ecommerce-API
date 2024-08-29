@@ -30,7 +30,7 @@ export const createCategoryCtrl = expressAsyncHandler(async (req, res) => {
 });
 
 export const getCategoriesCtrl = expressAsyncHandler(async (req, res) => {
-  const categories = await Category.find();
+  const categories = await Category.find().populate('product');
 
   if (!categories) {
     throw new Error("there is no category");

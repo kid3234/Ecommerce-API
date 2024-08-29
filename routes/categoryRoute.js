@@ -7,8 +7,8 @@ import upload from "../config/fileUpload.js";
 const categoryRoutes = express.Router();
 
 categoryRoutes.post("/",isLoggedIn,upload.single('file'),createCategoryCtrl)
-categoryRoutes.get("/",isLoggedIn,getCategoriesCtrl)
-categoryRoutes.get("/:id",isLoggedIn,getCategoryCtrl)
+categoryRoutes.get("/",getCategoriesCtrl)
+categoryRoutes.get("/:id",getCategoryCtrl)
 categoryRoutes.put("/:id",isLoggedIn,updateCategoryCtrl)
 categoryRoutes.delete("/:id",isLoggedIn,deleteCategoryCtrl)
 

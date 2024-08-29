@@ -170,7 +170,6 @@ export const updateProductCtrl = expressAsyncHandler(async (req, res) => {
     category,
     sizes,
     colors,
-    user,
     price,
     totalQty,
   } = req.body;
@@ -186,7 +185,7 @@ export const updateProductCtrl = expressAsyncHandler(async (req, res) => {
       category,
       sizes,
       colors,
-      user,
+      user: req.userAuthId,
       price,
       totalQty,
     },
